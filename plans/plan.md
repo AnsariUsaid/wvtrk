@@ -82,8 +82,10 @@ wvtrk/
 │   ├── src/               # App, api.ts, types.ts, components/, hooks/, lib/ (formatting, analysis + tests)
 │   ├── package.json
 │   └── Dockerfile         # build, then nginx (nginx.conf.template)
+├── api/index.py           # Vercel entry point for the FastAPI app
 ├── docker-compose.yml
-├── vercel.json
+├── vercel.json            # Vercel build, routing and function settings
+├── requirements.txt       # Python packages for Vercel (points at backend/)
 └── README.md
 ```
 
@@ -135,8 +137,23 @@ Done when: `docker-compose up` runs the app locally.
 
 **Phase 6: Deploy**
 Goal: Put the app live.
-- Deploy to Vercel, falling back to Heroku with Docker if Vercel's Python limits get in the way
-- Test the live app
+
+Vercel serves the built React page as static files and runs FastAPI as a Python function, on one address. Heroku with the Docker images is the backup (it has no free plan). Vercel's auto-detection can't handle this repo on its own: the React app is in `frontend/` rather than the root, Vercel only runs Python functions from a root `api/` folder, and it only bundles files it sees imported (the snapshot is read from disk). These files fill those gaps:
+
+| File | What it does |
+|---|---|
+| `api/index.py` | Entry point Vercel runs as a function. Adds `backend/` to the import path and exposes the existing FastAPI `app`; no backend code changes |
+| `vercel.json` | Builds the front end (`npm ci` and `npm run build` in `frontend/`, serves `frontend/dist`); rewrites `/api/*`, `/docs` and `/openapi.json` to the function (FastAPI still sees the original path); bundles `backend/app` and `backend/data/snapshot.json` with the function |
+| `requirements.txt` (root) | Python packages for the function; points at `backend/requirements.txt` |
+| `.python-version` | Python 3.12, the version tested in Docker |
+| `.vercelignore` | Keeps the virtual env, raw downloads, tests, scripts and build output out of uploads |
+
+Steps:
+- [x] Add the files above and check locally: the entry point serves the API (24h MAE 2,050 MW, `/docs` 200), the root build commands work, and the root `requirements.txt` resolves
+- [ ] User reviews the files, then pushes
+- [ ] User imports the repo on vercel.com (Add New → Project → Import, default settings) and deploys
+- [ ] Check the live app in incognito: page loads, 2,050 MW at 24h, slider, day-before mode, coverage warning at 48h, `/docs`
+- [ ] Record the live URL here and in the README
 
 Done when: the live link works in incognito.
 

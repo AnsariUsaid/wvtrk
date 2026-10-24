@@ -1,0 +1,2 @@
+# Python packages for the Vercel function in api/ (same as the backend).
+-r backend/requirements.txt

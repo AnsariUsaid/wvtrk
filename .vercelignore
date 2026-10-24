@@ -1,0 +1,10 @@
+# Keep the Vercel upload to what the build and the API function need.
+.venv
+backend/data/raw
+backend/tests
+backend/scripts
+frontend/node_modules
+frontend/dist
+**/__pycache__
+**/.DS_Store
+Windsight Dashboard*.html
