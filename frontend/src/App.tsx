@@ -10,7 +10,7 @@ import HowItWorks from './components/HowItWorks'
 import InsightsPanel from './components/InsightsPanel'
 import OverviewCards, { type MetricDeltas, type ShownMetrics } from './components/OverviewCards'
 import SettingsPanel from './components/SettingsPanel'
-import Sidebar, { Brand, type SectionId } from './components/Sidebar'
+import Sidebar, { Brand } from './components/Sidebar'
 import StatusBanner from './components/StatusBanner'
 import SummaryBar from './components/SummaryBar'
 import ui from './components/ui.module.css'
@@ -28,7 +28,6 @@ export default function App() {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS)
   const { data, loading, error, retry } = useDashboardData(settings)
   const [fetchedAt, setFetchedAt] = useState<string | null>(null)
-  const [nav, setNav] = useState<SectionId>('overview')
   const [pulse, setPulse] = useState(false)
   const [flashWarning, setFlashWarning] = useState(false)
   const pulseTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -105,15 +104,6 @@ export default function App() {
     }
   }, [data])
 
-  const goTo = (id: SectionId) => {
-    setNav(id)
-    const el = document.getElementById(id)
-    if (!el) return
-    const bar = document.getElementById('summary-bar')
-    const offset = narrow || !bar ? 16 : bar.offsetHeight + 8
-    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - offset, behavior: 'smooth' })
-  }
-
   const flashCoverage = () => {
     document.getElementById('coverage')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     setFlashWarning(true)
@@ -134,7 +124,7 @@ export default function App() {
   return (
     <div className={styles.layout}>
       {!narrow && (
-        <Sidebar active={nav} onNavigate={goTo}>
+        <Sidebar>
           {settingsPanel}
         </Sidebar>
       )}

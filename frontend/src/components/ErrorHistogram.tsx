@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import { BIN_COUNT, BIN_MIN_MW, BIN_MW } from '../lib/analysis'
+import { barDelay } from '../lib/motion'
 import styles from './ErrorCharts.module.css'
 import ui from './ui.module.css'
 
@@ -63,7 +64,7 @@ export default function ErrorHistogram({ bins, overPct, ready }: Props) {
                     borderRadius: '5px 5px 0 0',
                     left: 0,
                     right: 0,
-                    transitionDelay: `${k * 0.025}s`,
+                    transitionDelay: barDelay(k * 0.025),
                   }}
                 />
               </div>

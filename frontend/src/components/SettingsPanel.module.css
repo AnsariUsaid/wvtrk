@@ -1,7 +1,7 @@
 .panel {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   padding: 16px;
   border-radius: 18px;
   background: var(--card);
@@ -84,8 +84,8 @@
 .box {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 12px;
+  gap: 8px;
+  padding: 10px 12px;
   border-radius: 14px;
   background: var(--lime-wash);
   border: 1px solid var(--lime-line);

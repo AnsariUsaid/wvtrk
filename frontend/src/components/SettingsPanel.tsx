@@ -13,8 +13,8 @@ const PRESETS: Record<Exclude<Preset, 'custom'>, [number, number]> = {
 }
 
 const PRESET_OPTIONS: SegmentOption<Preset>[] = [
-  { value: 'month', label: 'Whole month', span: 2 },
-  { value: 'custom', label: 'Custom', span: 2 },
+  { value: 'month', label: 'Whole month' },
+  { value: 'custom', label: 'Custom' },
   { value: 'w1', label: 'Week 1' },
   { value: 'w2', label: 'Week 2' },
   { value: 'w3', label: 'Week 3' },
@@ -63,7 +63,7 @@ export default function SettingsPanel({ settings: s, onChange, onReset, isDefaul
           <span className={ui.eyebrow}>Period</span>
           <span className={styles.value}>{rangeLabel(s.start, s.end)}</span>
         </div>
-        <Segmented label="Period" options={PRESET_OPTIONS} value={s.preset} onChange={pickPreset} columns={4} />
+        <Segmented label="Period" options={PRESET_OPTIONS} value={s.preset} onChange={pickPreset} columns={2} />
         {s.preset === 'custom' && (
           <div className={styles.dates}>
             <input

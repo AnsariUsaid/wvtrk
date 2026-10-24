@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import { clock, gw, signedGw } from '../lib/format'
+import { barDelay } from '../lib/motion'
 import type { HourRow } from '../types'
 import styles from './ErrorCharts.module.css'
 import ui from './ui.module.css'
@@ -79,7 +80,7 @@ export default function ErrorByHourChart({ profile, ready }: Props) {
                       background: p.meanError >= 0 ? 'var(--forest)' : 'var(--lime)',
                       opacity: hoverHour == null || hoverHour === p.hour ? 1 : 0.35,
                       borderRadius: 5,
-                      transitionDelay: `${p.hour * 0.02}s`,
+                      transitionDelay: barDelay(p.hour * 0.02),
                     }}
                   />
                   <div
