@@ -60,13 +60,16 @@ One page, three parts:
 
 ```
 wvtrk/
-├── Requirements/          # requirements.md, plan.md
+├── Requirements/          # requirements.md, plan.md, data-notes.md
 ├── backend/
 │   ├── app/
 │   │   ├── main.py        # FastAPI app + routes
-│   │   ├── elexon.py      # fetch data from Elexon
-│   │   ├── forecast.py    # pick latest forecast per slot
+│   │   ├── elexon.py      # fetch and clean data from Elexon
+│   │   ├── data.py        # snapshot format + loader
+│   │   ├── forecast.py    # pick latest forecast per slot (horizon or day-ahead cutoff)
 │   │   └── metrics.py     # error calculations
+│   ├── data/snapshot.json # January 2026 data, built by scripts/build_snapshot.py
+│   ├── scripts/           # build_snapshot.py, explore_data.py (Phase 1)
 │   ├── tests/
 │   ├── requirements.txt
 │   └── Dockerfile
@@ -91,11 +94,12 @@ Goal: Confirm the Elexon data for January 2026 is usable.
 
 Done when: both datasets load for January 2026 and the slot-matching approach is decided.
 
-**Phase 2: Backend data and logic**
+**Phase 2: Backend data and logic** ✅ Done 2026-10-24
 Goal: Turn the raw data into matched forecasts and error metrics.
-- Fetch, clean and save the data as a JSON snapshot (forecasts from late December 2025)
-- Pick the latest forecast published at least *H* hours before each slot
-- Calculate MAE, RMSE, bias and normalised MAE, skipping unmatched slots and counting the slots used
+- [x] Fetch, clean and save the data as a JSON snapshot (forecasts from late December 2025), 491 KB
+- [x] Pick the latest forecast published at least *H* hours before each slot, or by a fixed time on D-1 (day-ahead mode, see data-notes.md D6)
+- [x] Calculate MAE, RMSE, bias and normalised MAE, skipping unmatched slots and counting the slots used
+- [x] Results match the Phase 1 numbers (e.g. H = 24: 744 slots, MAE 2,050 MW)
 
 Done when: the snapshot exists and, for a given horizon, the code returns matched slots and metrics from it.
 

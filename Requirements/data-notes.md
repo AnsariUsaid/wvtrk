@@ -64,6 +64,42 @@ As expected, error grows steadily with horizon.
 - The bias is there even at H = 0, so it does not come from forecasting too far ahead.
 - One possible cause *(not verified)* is that `WINDFOR` forecasts available wind output, while `FUELHH` records metered output after wind farms are curtailed. Curtailment is heaviest overnight, when demand is low. We should mention this carefully in the pitch, as a likely cause and not a confirmed one.
 
+## Open questions answered
+
+**Q1. Should we use a fixed purchase cutoff or an adjustable horizon?**
+The brief's wording ("the latest forecast available when the day-ahead decision had to be made") suggests a fixed cutoff. The adjustable horizon was our own assumption. The backend supports **both modes**, and the only difference between them is the publish cutoff:
+- **Horizon mode:** the cutoff is the slot time minus H.
+- **Day-ahead mode:** the cutoff is a fixed time on the day before delivery (D-1).
+
+Which mode the UI shows first is decided in Phase 4. The day-ahead cutoff time is a parameter, with a default of **09:00 UK** *(assumed, before the morning day-ahead auctions; to be confirmed)*. In January, UK time is the same as UTC.
+
+**Q2. Should hourly forecasts be compared with the start-of-hour actual or an hourly average?**
+Use the **start-of-hour actual**. The alignment check above shows a difference of under 1%. It is also the simplest choice to explain, and it needs no assumption about what an hourly forecast value represents.
+
+**Q3. Is the over-forecasting caused by curtailment or by a difference in how the datasets are defined?**
+Most likely **both**. The table shows the bias at H = 0, grouped by forecast level:
+
+| Forecast (GW) | Slots | Bias (MW) | Bias % of forecast |
+|---|---:|---:|---:|
+| 0–12 | 335 | +530 to +700 | 7–21% |
+| 12–15 | 86 | +1,016 | 8% |
+| 15–18 | 154 | +2,087 | 12% |
+| 18–21 | 165 | +3,282 | 17% |
+| 21+ | 4 | +7,163 | 34% |
+
+- The bias rises sharply when wind is high. Actual output peaks at 17.8 GW, while forecasts reach 21 GW. This fits **curtailment**, where wind farms are told to turn down because the grid cannot carry all the power.
+- A steady bias of about 600 MW remains even when wind is low, and curtailment does not explain that. It points to a **definition difference**, for example `WINDFOR` covering some wind farms that `FUELHH` does not meter.
+- Neither cause is proven with this data. In the pitch, call them likely causes.
+
+**Q4. Can metrics at long horizons be compared with short ones when they use fewer slots?**
+**Not directly.** The 155 slots with no forecast at H = 48 are always the same hours, **22:00–02:00 on every day**, because of the publishing schedule. Those night hours have the largest bias, so dropping them makes the 48h figures look different for reasons unrelated to forecast skill. Comparing every horizon on the same 589 slots gives a cleaner trend:
+
+| H (h) | MAE, own slots (MW) | MAE, same 589 slots (MW) |
+|---:|---:|---:|
+| 0 | 1,794 (744 slots) | 1,703 |
+| 24 | 2,050 (744 slots) | 2,020 |
+| 48 | 2,380 (589 slots) | 2,380 |
+
 ## Decisions
 
 | # | Decision | Why |
@@ -73,5 +109,7 @@ As expected, error grows steadily with horizon.
 | D3 | Pick the **latest forecast with `publishTime ≤ startTime − H`** | This is the plan's core rule. With H ≥ 0 it also drops the backfill rows |
 | D4 | Fetch forecasts by `publishTime` from **29 Dec 2025** | The longest lead is 66h, so 3 days before 1 Jan is enough |
 | D5 | Metrics: MAE, RMSE, bias and nMAE (MAE as % of mean actual), plus the matched slot count | No zero actuals were found, but MAPE is still avoided as planned |
-| D6 | A fixed "D-1 cutoff time" mode is **optional and left for later** | The slider covers what the brief asks for. A cutoff mode can be added if time allows |
+| D6 | The backend supports **both** horizon mode and day-ahead mode (D-1 cutoff time, default 09:00 UK *assumed*) | The brief may expect a fixed cutoff (Q1). The UI choice is made in Phase 4 |
 | D7 | Phase 2 snapshot keeps only forecasts for January slots with a lead time ≥ 0 | Backfill rows are dropped to keep the snapshot small for Vercel. Leads over 48h stay, because H = 48 has to pick from them |
+| D8 | Always show the matched slot count, and warn when it is below the full count | Above 42h, the missing slots are the night hours, which skews the comparison (Q4) |
+| D9 | Delivery day is the UK calendar day *(assumed)* | In January, UK time is the same as UTC, so no clock-change handling is needed |

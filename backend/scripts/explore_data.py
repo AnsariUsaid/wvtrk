@@ -1,68 +1,36 @@
 """Phase 1 data check: load January 2026 wind actuals and forecasts from Elexon
 and print a quality / coverage report.
 
-Run from the repo root:
-    python backend/scripts/explore_data.py           # uses cached raw data if present
-    python backend/scripts/explore_data.py --refresh # re-download from Elexon
+Run from backend/:
+    python -m scripts.explore_data            # uses cached raw data if present
+    python -m scripts.explore_data --refresh  # re-download from Elexon
 """
 
 import argparse
 import json
 import statistics
 from collections import Counter, defaultdict
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import requests
+from app.data import FORECAST_PUBLISH_FROM
+from app.data import PERIOD_END as JAN_END
+from app.data import PERIOD_START as JAN_START
+from app.elexon import fetch_actuals as fetch_actual_rows
+from app.elexon import fetch_forecasts as fetch_forecast_rows
+from app.elexon import parse_ts
 
-BASE_URL = "https://data.elexon.co.uk/bmrs/api/v1/datasets"
 RAW_DIR = Path(__file__).resolve().parents[1] / "data" / "raw"
-
-JAN_START = datetime(2026, 1, 1, tzinfo=timezone.utc)
-JAN_END = datetime(2026, 2, 1, tzinfo=timezone.utc)  # exclusive
-# Forecasts for early January are published in late December.
-FORECAST_PUBLISH_FROM = JAN_START - timedelta(days=3)
 
 HORIZONS_H = [0, 1, 2, 4, 6, 8, 12, 18, 24, 30, 36, 42, 48, 60, 72]
 
 
-def parse_ts(value: str) -> datetime:
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
-
-
-def get_json(dataset: str, params: dict) -> list[dict]:
-    resp = requests.get(f"{BASE_URL}/{dataset}/stream", params=params, timeout=60)
-    resp.raise_for_status()
-    return resp.json()
-
-
 def fetch_actuals() -> list[dict]:
-    # January is GMT, so settlement dates line up with UTC days.
-    rows = []
-    day = JAN_START.date()
-    while day < JAN_END.date():
-        rows += get_json(
-            "FUELHH",
-            {"settlementDateFrom": day.isoformat(), "settlementDateTo": day.isoformat(), "fuelType": "WIND"},
-        )
-        day += timedelta(days=1)
-    return rows
+    return fetch_actual_rows(JAN_START.date(), (JAN_END - timedelta(days=1)).date())
 
 
 def fetch_forecasts() -> list[dict]:
-    rows = []
-    start = FORECAST_PUBLISH_FROM
-    while start < JAN_END:
-        end = start + timedelta(days=1)
-        rows += get_json(
-            "WINDFOR",
-            {
-                "publishDateTimeFrom": start.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "publishDateTimeTo": (end - timedelta(seconds=1)).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            },
-        )
-        start = end
-    return rows
+    return fetch_forecast_rows(FORECAST_PUBLISH_FROM, JAN_END)
 
 
 def load(name: str, fetch, refresh: bool) -> list[dict]:
