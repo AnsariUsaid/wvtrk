@@ -1,7 +1,7 @@
 # Project instructions
 
 ## Start of every session
-- Read `Requirements/requirements.md` and `Requirements/plan.md` before doing any work.
+- Read `plans/requirements.md` and `plans/plan.md` before doing any work.
 - Keep them up to date as work progresses: tick off completed items, note decisions, and adjust the plan when scope changes. Commit those updates with the related work.
 
 ## UI

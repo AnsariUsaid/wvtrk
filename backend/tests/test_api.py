@@ -20,7 +20,7 @@ def test_metrics_default_is_24h_horizon_over_january():
         "start": "2026-01-01", "end": "2026-01-31", "mode": "horizon", "horizon": 24.0, "cutoff": None,
     }
     assert body["coverage"] == {"slotsUsed": 744, "slotsTotal": 744, "partialCoverage": False}
-    # Matches the Phase 1 exploration (Requirements/data-notes.md).
+    # Matches the Phase 1 exploration (plans/data-notes.md).
     assert round(body["mae"]) == 2050
     assert round(body["bias"]) == 1854
 

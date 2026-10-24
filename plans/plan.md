@@ -65,7 +65,7 @@ One page ("Windsight"), built from the design the user supplied (kept locally, n
 
 ```
 wvtrk/
-├── Requirements/          # requirements.md, plan.md, data-notes.md
+├── plans/                # requirements.md, plan.md, data-notes.md
 ├── backend/
 │   ├── app/
 │   │   ├── main.py        # FastAPI app + routes
