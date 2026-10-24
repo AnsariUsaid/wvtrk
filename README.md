@@ -111,7 +111,7 @@ It also shows the error for each hour of the day, the spread of errors (in 0.5 G
 
 - Forecasts are hourly, so only on-the-hour actuals are compared (744 hours in January). Averaging the half-hourly actuals made less than 1% difference.
 - Times are UK time, which is the same as UTC in January.
-- "Purchase decisions in January 2026" is read as **delivery in January 2026** (1–31 January).
+- "Purchase decisions in January 2026" is read as **delivery in January 2026** (1–31 January), so the day-ahead decisions covered are those made from 31 December to 30 January.
 - The day-before decision time defaults to 09:00 UK time; any time can be chosen.
 - Beyond 42 hours ahead, some night hours have no forecast. The app shows how many hours were compared and warns when some are missing.
 
@@ -179,9 +179,8 @@ The app is deployed on Vercel from the `main` branch: the React app is served as
 
 ## Use of AI tools
 
-AI tools were used throughout this project, as the brief allows:
+As the brief allows, I used **Claude Code (Claude Opus 5.5)**, Anthropic's AI coding assistant, for:
 
-- **Claude Code (Claude Opus 5.5)**, Anthropic's coding assistant, used in the Claude desktop app for planning, the Elexon data exploration, the back end and tests, the front end, Docker and Vercel configuration, and this README. It worked from the brief and the rules in [CLAUDE.md](CLAUDE.md), and committed in small steps.
-- **Claude Design** to create the dashboard's visual design, which was then rebuilt in React.
-
-I directed the work and made the decisions: the scope and assumptions, the UI design, reviewing each phase and the data findings, and checking the app locally, in Docker and on Vercel. The plans and decisions are recorded in [plans/](plans/).
+- exploring the Elexon data,
+- writing the code,
+- writing this README.
