@@ -13,7 +13,7 @@ Based on [requirements.md](requirements.md).
 
 | Part | Choice | Why |
 |---|---|---|
-| Front end | React (Vite) + Recharts | Fast setup, simple charts |
+| Front end | React + TypeScript (Vite), charts drawn as custom SVG | Matches the agreed design exactly with no chart library |
 | Back end | Python + FastAPI | Light, quick to build, auto API docs |
 | Data | Elexon `FUELHH` (WIND) + `WINDFOR` | Only data allowed by the brief |
 | Storage | Small JSON snapshot (fetched once by a script, shipped with the app, loaded at startup) | The data is historical, so no database is needed, and serverless cold starts don't have to call Elexon again |
@@ -51,10 +51,13 @@ All data endpoints take `start` and `end` (dates in January 2026, default the wh
 
 ## 4. Front-end screens
 
-One page, three parts:
-1. **Controls:** date range (January 2026 only) and a horizon slider (0–48h, default 24h).
-2. **Main chart:** actual vs forecast wind over time on a line chart.
-3. **Accuracy panel:** cards for MAE, RMSE and bias, plus an error-by-hour or histogram chart.
+One page ("Windsight"), built from the design the user supplied (kept locally, not in git):
+1. **Sidebar:** section menu and forecast settings (period presets or custom dates, hours-ahead slider 0–48h or day-before decision time, coverage warning). On screens under 900px the settings move above the content.
+2. **Overview:** average error hero card, plus bias, error %, big-miss error and hours compared, with change badges against the previous settings. A summary bar sticks to the top once these scroll away.
+3. **Actual vs forecast chart:** half-hourly actuals, hourly forecasts, shaded gap, hover details (including when the forecast was published) and drag to zoom.
+4. **Error patterns:** error by hour of day and an error histogram with the share of hours over-forecast.
+5. **Insights, glossary and how it works:** plain-English takeaways generated from the current figures.
+6. **States:** dimmed cards while loading and an error banner with Retry that keeps the last figures on screen.
 
 ---
 
@@ -76,7 +79,7 @@ wvtrk/
 │   ├── requirements.txt   # requirements-dev.txt adds pytest
 │   └── Dockerfile
 ├── frontend/
-│   ├── src/ (components, api client, charts)
+│   ├── src/               # App, api.ts, types.ts, components/, hooks/, lib/ (formatting, analysis + tests)
 │   ├── package.json
 │   └── Dockerfile
 ├── docker-compose.yml
@@ -113,11 +116,12 @@ Goal: Serve the data and metrics over REST.
 
 Done when: all endpoints return correct JSON and the tests pass.
 
-**Phase 4: Front end**
+**Phase 4: Front end** ✅ Done 2026-10-24
 Goal: Build the single page the trading team will use.
-- Layout, controls (date range, horizon slider) and API client
-- Main chart of actual vs forecast
-- Accuracy panel with metric cards and an error-by-hour or histogram chart
+- [x] Layout, controls (date range, horizon slider, day-before time) and API client
+- [x] Main chart of actual vs forecast
+- [x] Accuracy panel with metric cards, error-by-hour and histogram charts
+- [x] Insights, loading and error states; checked in the browser against the real API (desktop and phone widths)
 
 Done when: moving the slider changes the chart and the metrics update with it.
 
@@ -148,8 +152,8 @@ Done when: every item in the Done checklist (section 7) is ticked.
 ## 7. Done checklist
 
 - [ ] Live app shows actual vs forecast for January 2026
-- [ ] Horizon slider changes which forecast is used, and the metrics update with it
-- [ ] Error metrics are shown clearly
+- [x] Horizon slider changes which forecast is used, and the metrics update with it
+- [x] Error metrics are shown clearly
 - [ ] `docker-compose up` runs the app locally
 - [ ] Deployed on Vercel (or Heroku) and opens in incognito
 - [ ] Public GitHub repo with an anonymous name and a full README (AI tool use mentioned)

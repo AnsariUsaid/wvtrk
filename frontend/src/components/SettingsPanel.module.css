@@ -1,0 +1,156 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 30px -20px rgba(16, 35, 26, 0.3);
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.heading {
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.reset {
+  border: 1px solid var(--line-2);
+  background: transparent;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font: 500 12px var(--sans);
+  color: var(--ink-2);
+  transition:
+    opacity 0.25s,
+    background 0.2s;
+}
+
+.reset:hover {
+  background: var(--seg);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fieldHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.value {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.dates input,
+.time {
+  min-width: 0;
+  font: 500 12px var(--sans);
+  padding: 6px;
+  border: 1px solid var(--line-2);
+  border-radius: 9px;
+  background: var(--tile);
+  color: var(--ink);
+}
+
+.time {
+  font: 500 12.5px var(--mono);
+  padding: 6px 8px;
+  background: var(--card);
+}
+
+.box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--lime-wash);
+  border: 1px solid var(--lime-line);
+}
+
+.boxLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.big {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.unit {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.ticks {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-3);
+}
+
+.desc {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.warning {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-line);
+  color: var(--warn-ink);
+  font-size: 12px;
+  line-height: 1.45;
+  transition: box-shadow 0.4s;
+}
+
+.flash {
+  box-shadow: 0 0 0 4px rgba(226, 178, 58, 0.45);
+}
+
+.warnIcon {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--warn-dot);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 11px;
+}

@@ -1,0 +1,112 @@
+.story {
+  flex: 2 1 520px;
+  background: var(--forest);
+  color: var(--bg);
+  border-radius: 22px;
+  padding: clamp(22px, 3vw, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ring {
+  position: absolute;
+  right: -90px;
+  top: -90px;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  border: 40px solid rgba(163, 224, 95, 0.08);
+  animation: ws-spin 60s linear infinite;
+}
+
+.eyebrow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lime);
+}
+
+.eyebrowDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--lime);
+}
+
+.headline {
+  position: relative;
+  margin: 0;
+  font-size: clamp(19px, 2vw, 24px);
+  line-height: 1.38;
+  letter-spacing: -0.015em;
+  font-weight: 500;
+  text-wrap: pretty;
+}
+
+.detail {
+  position: relative;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #c4d3c9;
+  text-wrap: pretty;
+}
+
+.causes {
+  position: relative;
+  margin: 4px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 13px;
+  line-height: 1.5;
+  color: #9fb3a7;
+  text-wrap: pretty;
+}
+
+.glossary {
+  flex: 1 1 320px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 22px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 18px 22px;
+  align-content: start;
+}
+
+.glossaryTitle {
+  grid-column: 1 / -1;
+}
+
+.term {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.termName {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.termTag {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.termText {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}

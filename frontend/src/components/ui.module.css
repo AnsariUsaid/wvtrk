@@ -1,0 +1,147 @@
+/* Shared building blocks used across sections. */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 20px clamp(14px, 2vw, 24px) 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.cardHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.sub {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.tooltip {
+  position: absolute;
+  padding: 11px 13px;
+  border-radius: 13px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  font-size: 12.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 4;
+  box-shadow: var(--shadow-pop);
+}
+
+.tipRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tipLabel {
+  color: var(--ink-2);
+}
+
+.mono {
+  font-family: var(--mono);
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.badgeBetter {
+  background: var(--lime-soft);
+  color: #2f5f10;
+}
+
+.badgeWorse {
+  background: #fff1d6;
+  color: #7a5a0c;
+}
+
+.axisLabel {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.darkButton {
+  border: 0;
+  background: var(--forest);
+  cursor: pointer;
+  padding: 7px 12px;
+  border-radius: 9px;
+  font: 500 12px var(--sans);
+  color: #ffffff;
+}
+
+.darkButton:hover {
+  background: var(--forest-hover);
+}
+
+/* Reveal-on-scroll (see useReveal). */
+.reveal {
+  transition:
+    opacity 0.9s var(--ease),
+    transform 0.9s var(--ease);
+}
+
+.hidden {
+  opacity: 0;
+  transform: translateY(22px);
+}

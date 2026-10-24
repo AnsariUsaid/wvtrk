@@ -1,0 +1,247 @@
+.hero {
+  flex: 1 1 260px;
+  min-height: 196px;
+  background: var(--lime);
+  border-radius: 22px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+  transition:
+    transform 0.35s var(--ease),
+    box-shadow 0.5s;
+}
+
+.hero:hover {
+  transform: translateY(-3px);
+}
+
+.heroPulse {
+  box-shadow: 0 0 0 3px var(--forest);
+}
+
+.ring {
+  position: absolute;
+  right: -60px;
+  bottom: -80px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  border: 34px solid rgba(255, 255, 255, 0.22);
+  animation: ws-spin 40s linear infinite;
+}
+
+.blob {
+  position: absolute;
+  right: 30px;
+  bottom: -30px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(18, 61, 46, 0.08);
+}
+
+.heroHead {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.heroLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--forest);
+}
+
+.heroTag {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 9px;
+  border-radius: 20px;
+  background: rgba(18, 61, 46, 0.12);
+  color: var(--forest);
+}
+
+.heroBody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.heroValue {
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  color: var(--forest-deep);
+  font-variant-numeric: tabular-nums;
+}
+
+.heroUnit {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--forest);
+}
+
+.heroFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--forest-mid);
+}
+
+.heroBadge {
+  background: #ffffff;
+  color: var(--forest);
+}
+
+.accuracy {
+  flex: 3 1 600px;
+  min-width: 0;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: box-shadow 0.5s;
+}
+
+.pulse {
+  box-shadow: 0 0 0 3px rgba(124, 194, 58, 0.55);
+}
+
+.accHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.vs {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.direction {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  transition:
+    background 0.3s,
+    color 0.3s;
+}
+
+.tooHigh {
+  background: var(--lime-soft);
+  color: var(--forest);
+}
+
+.tooLow {
+  background: var(--warn-bg);
+  color: #3d6d14;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  flex: 1;
+}
+
+.tile {
+  border: 1px solid var(--line-soft);
+  background: var(--tile);
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  transition:
+    border-color 0.25s,
+    background 0.25s;
+}
+
+.tile:hover {
+  border-color: #c9e6a6;
+  background: var(--lime-wash);
+}
+
+.tileHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--lime-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--forest);
+}
+
+.tileLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.delta {
+  margin-left: auto;
+}
+
+.valueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.value {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+
+.unit {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.note {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-3);
+}
+
+.coverage {
+  height: 5px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.coverageFill {
+  height: 100%;
+  background: var(--forest);
+  border-radius: 5px;
+  transition: width 0.8s var(--ease);
+}

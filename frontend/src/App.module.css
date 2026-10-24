@@ -1,0 +1,46 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  align-items: stretch;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.narrowBrand {
+  padding: 18px clamp(16px, 3vw, 32px) 0;
+}
+
+.narrowSettings {
+  padding: 8px clamp(16px, 3vw, 32px) 0;
+}
+
+.main {
+  padding: 16px clamp(16px, 3vw, 32px) 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: opacity 0.3s;
+}
+
+.updating {
+  opacity: 0.72;
+}
+
+.row {
+  scroll-margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.about {
+  scroll-margin-top: 16px;
+  padding: 22px;
+  gap: 18px;
+}

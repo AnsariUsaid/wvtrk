@@ -1,0 +1,36 @@
+.group {
+  display: grid;
+  gap: 3px;
+  padding: 3px;
+  background: var(--seg);
+  border-radius: 11px;
+}
+
+.option {
+  border: 0;
+  cursor: pointer;
+  padding: 7px 2px;
+  border-radius: 8px;
+  font: 500 12px var(--sans);
+  background: transparent;
+  color: var(--ink-2);
+  white-space: nowrap;
+  transition:
+    background 0.25s,
+    color 0.25s,
+    box-shadow 0.25s;
+}
+
+.option:hover {
+  color: var(--ink);
+}
+
+.option[aria-pressed='true'] {
+  background: var(--forest);
+  color: #ffffff;
+  box-shadow: 0 4px 12px -4px rgba(18, 61, 46, 0.5);
+}
+
+.mono {
+  font: 500 11.5px var(--mono);
+}
