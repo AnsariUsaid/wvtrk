@@ -38,12 +38,14 @@ Elexon API  ──►  Python backend (fetch → clean → match → metrics)  �
 
 ## 3. Backend API
 
+All data endpoints take `start` and `end` (dates in January 2026, default the whole month), `mode` (`horizon` or `day_ahead`), `horizon` (0–48h, default 24) and `cutoff` (time on D-1 in day-ahead mode, default `09:00`). Every response repeats the `selection` and gives `coverage` (slots used, total slots, `partialCoverage`). Interactive docs are at `/docs`.
+
 | Endpoint | Returns |
 |---|---|
-| `GET /api/health` | Status check |
-| `GET /api/generation?start=&end=&horizon=` | Per-slot list of `startTime`, `actual`, `forecast` and `publishTime` |
-| `GET /api/metrics?start=&end=&horizon=` | MAE, RMSE, bias, normalised MAE and the number of slots used |
-| `GET /api/error-profile?start=&end=&horizon=` | Average error by hour of day, for spotting patterns |
+| `GET /api/health` | Status, snapshot fetch time and the period covered |
+| `GET /api/generation` | Hourly `slots` (`startTime`, `actual`, `forecast`, `publishTime`, `error`; forecast is null when there isn't one), plus half-hourly `actuals` |
+| `GET /api/metrics` | MAE, RMSE, bias, normalised MAE and mean actual |
+| `GET /api/error-profile` | Mean error and MAE for each hour of the day |
 
 ---
 
@@ -70,8 +72,8 @@ wvtrk/
 │   │   └── metrics.py     # error calculations
 │   ├── data/snapshot.json # January 2026 data, built by scripts/build_snapshot.py
 │   ├── scripts/           # build_snapshot.py, explore_data.py (Phase 1)
-│   ├── tests/
-│   ├── requirements.txt
+│   ├── tests/             # pytest: matching, metrics, API
+│   ├── requirements.txt   # requirements-dev.txt adds pytest
 │   └── Dockerfile
 ├── frontend/
 │   ├── src/ (components, api client, charts)
@@ -103,11 +105,11 @@ Goal: Turn the raw data into matched forecasts and error metrics.
 
 Done when: the snapshot exists and, for a given horizon, the code returns matched slots and metrics from it.
 
-**Phase 3: Backend API**
+**Phase 3: Backend API** ✅ Done 2026-10-24
 Goal: Serve the data and metrics over REST.
-- Add `/api/health`, `/api/generation`, `/api/metrics` and `/api/error-profile`
-- Return how many slots were used with the metrics
-- Write a few unit tests for forecast matching and metrics
+- [x] Add `/api/health`, `/api/generation`, `/api/metrics` and `/api/error-profile` (both cutoff modes)
+- [x] Return how many slots were used with the metrics
+- [x] Write unit tests for forecast matching and metrics, plus API tests (35 passing)
 
 Done when: all endpoints return correct JSON and the tests pass.
 
