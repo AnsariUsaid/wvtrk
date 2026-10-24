@@ -30,8 +30,8 @@ Elexon API  ──►  Python backend (fetch → clean → match → metrics)  �
 
 **Core logic, the key idea:**
 1. Get actual wind generation for every 30-minute slot in January 2026.
-2. Get every wind forecast that covers those slots, along with its `publishTime`. Fetch by `publishTime` starting about 2 days before 1 Jan, because forecasts for early January were published in late December 2025.
-3. For each slot, pick the **latest forecast published at least *H* hours before the slot**. *H* is the forecast horizon, with a default that matches the day-ahead decision (about 24h, *assumed*). The slider is a simplification: the real purchase is made once, on the day before delivery, so the true horizon varies through the day *(assumed)*.
+2. Get every wind forecast that covers those slots, along with its `publishTime`. Fetch by `publishTime` from 29 Dec 2025, because forecasts for early January were published in late December 2025. `WINDFOR` is hourly, so only the on-the-hour slots are compared (744 slots).
+3. For each slot, pick the **latest forecast published at least *H* hours before the slot**. *H* is the forecast horizon: the slider runs from 0 to 48h, with a default of 24h to match the day-ahead decision. The slider is a simplification: the real purchase is made once, on the day before delivery, so the true horizon varies through the day *(assumed)*. See [data-notes.md](data-notes.md) for why.
 4. Compare that forecast with the actual value to get the error, then summarise it as MAE, RMSE, bias and normalised MAE (MAE as % of mean actual). MAPE is avoided because it blows up when wind output is near zero.
 
 ---
@@ -50,7 +50,7 @@ Elexon API  ──►  Python backend (fetch → clean → match → metrics)  �
 ## 4. Front-end screens
 
 One page, three parts:
-1. **Controls:** date range (January 2026 only) and a horizon slider (e.g. 1–48h).
+1. **Controls:** date range (January 2026 only) and a horizon slider (0–48h, default 24h).
 2. **Main chart:** actual vs forecast wind over time on a line chart.
 3. **Accuracy panel:** cards for MAE, RMSE and bias, plus an error-by-hour or histogram chart.
 
@@ -83,11 +83,11 @@ wvtrk/
 
 ## 6. Phases
 
-**Phase 1: Data check**
+**Phase 1: Data check** ✅ Done 2026-10-24, findings in [data-notes.md](data-notes.md)
 Goal: Confirm the Elexon data for January 2026 is usable.
-- Explore the `FUELHH` (WIND) and `WINDFOR` APIs in a notebook or script
-- Check the January 2026 actuals and the forecasts published from late December 2025
-- Check the WINDFOR resolution: if it is hourly, compare on-the-hour slots only (or average the actuals to hourly)
+- [x] Explore the `FUELHH` (WIND) and `WINDFOR` APIs with a script (`backend/scripts/explore_data.py`)
+- [x] Check the January 2026 actuals and the forecasts published from late December 2025
+- [x] Check the WINDFOR resolution: it is hourly, so only on-the-hour slots are compared
 
 Done when: both datasets load for January 2026 and the slot-matching approach is decided.
 
@@ -155,6 +155,6 @@ Done when: every item in the Done checklist (section 7) is ticked.
 ## 8. Risks
 
 - **Elexon API is slow or limits requests:** fetch in daily chunks and cache the results.
-- **WINDFOR is hourly but actuals are half-hourly:** compare on-the-hour slots only, or average the actuals to hourly.
+- **WINDFOR is hourly but actuals are half-hourly:** resolved by comparing on-the-hour slots only (see data-notes.md, D1).
 - **Missing slots in the actuals or forecasts:** skip unmatched slots and show how many were used.
 - **Vercel's Python function limits:** keep the data small, or move to Heroku with Docker.
