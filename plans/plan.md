@@ -135,7 +135,7 @@ Goal: Run the whole app locally with one command.
 
 Done when: `docker-compose up` runs the app locally.
 
-**Phase 6: Deploy**
+**Phase 6: Deploy** ✅ Done 2026-10-24, live at https://wvtrk.vercel.app
 Goal: Put the app live.
 
 Vercel serves the built React page as static files and runs FastAPI as a Python function, on one address. Heroku with the Docker images is the backup (it has no free plan). Vercel's auto-detection can't handle this repo on its own: the React app is in `frontend/` rather than the root, Vercel only runs Python functions from a root `api/` folder, and it only bundles files it sees imported (the snapshot is read from disk). These files fill those gaps:
@@ -150,10 +150,11 @@ Vercel serves the built React page as static files and runs FastAPI as a Python 
 
 Steps:
 - [x] Add the files above and check locally: the entry point serves the API (24h MAE 2,050 MW, `/docs` 200), the root build commands work, and the root `requirements.txt` resolves
-- [ ] User reviews the files, then pushes
-- [ ] User imports the repo on vercel.com (Add New → Project → Import, default settings) and deploys
-- [ ] Check the live app in incognito: page loads, 2,050 MW at 24h, slider, day-before mode, coverage warning at 48h, `/docs`
-- [ ] Record the live URL here and in the README
+- [x] User reviews the files, then pushes
+- [x] User imports the repo on vercel.com (Add New → Project → Import, Root Directory `./`, Application Preset "Other"; ignore Vercel's "Services" suggestion and its "configuration mismatch" warning) and deploys
+- [x] Fix: Vercel can't read `-r` includes in `requirements.txt`, so the root file lists the packages directly
+- [x] Check the live app logged out: page loads, 2,050 MW at 24h, 48h shows 589/744 with the night-hours warning, day-before 09:00 gives 2,127.5 MW, `/docs` and `/openapi.json` load, bad input returns 422, no console errors
+- [x] Record the live URL here (README in Phase 7)
 
 Done when: the live link works in incognito.
 
@@ -169,11 +170,11 @@ Done when: every item in the Done checklist (section 7) is ticked.
 
 ## 7. Done checklist
 
-- [ ] Live app shows actual vs forecast for January 2026
+- [x] Live app shows actual vs forecast for January 2026
 - [x] Horizon slider changes which forecast is used, and the metrics update with it
 - [x] Error metrics are shown clearly
 - [x] `docker-compose up` runs the app locally
-- [ ] Deployed on Vercel (or Heroku) and opens in incognito
+- [x] Deployed on Vercel (or Heroku) and opens in incognito
 - [ ] Public GitHub repo with an anonymous name and a full README (AI tool use mentioned)
 - [ ] Unlisted YouTube video of 10 min or less, with both parts
 - [ ] All links submitted in the form
