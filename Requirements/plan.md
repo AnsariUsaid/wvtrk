@@ -77,11 +77,11 @@ wvtrk/
 │   ├── scripts/           # build_snapshot.py, explore_data.py (Phase 1)
 │   ├── tests/             # pytest: matching, metrics, API
 │   ├── requirements.txt   # requirements-dev.txt adds pytest
-│   └── Dockerfile
+│   └── Dockerfile         # targets: test, runtime
 ├── frontend/
 │   ├── src/               # App, api.ts, types.ts, components/, hooks/, lib/ (formatting, analysis + tests)
 │   ├── package.json
-│   └── Dockerfile
+│   └── Dockerfile         # build, then nginx (nginx.conf.template)
 ├── docker-compose.yml
 ├── vercel.json
 └── README.md
@@ -125,10 +125,11 @@ Goal: Build the single page the trading team will use.
 
 Done when: moving the slider changes the chart and the metrics update with it.
 
-**Phase 5: Docker**
+**Phase 5: Docker** ✅ Done 2026-10-24
 Goal: Run the whole app locally with one command.
-- Dockerfiles for the backend and front end, plus `docker-compose.yml`
-- Use a Vite proxy or CORS, since the front end and back end run on different ports
+- [x] Backend image: Python 3.12, snapshot baked in, non-root user, health check on `/api/health`; a `test` target runs pytest (35 pass on 3.12)
+- [x] Front-end image: Node 22 builds the app, nginx serves it and forwards `/api` and `/docs` to the API, so there is no CORS setup
+- [x] `docker-compose.yml` (project name `windsight`): `api` on :8000, `web` on :8080, web waits for the API to be healthy
 
 Done when: `docker-compose up` runs the app locally.
 
@@ -154,7 +155,7 @@ Done when: every item in the Done checklist (section 7) is ticked.
 - [ ] Live app shows actual vs forecast for January 2026
 - [x] Horizon slider changes which forecast is used, and the metrics update with it
 - [x] Error metrics are shown clearly
-- [ ] `docker-compose up` runs the app locally
+- [x] `docker-compose up` runs the app locally
 - [ ] Deployed on Vercel (or Heroku) and opens in incognito
 - [ ] Public GitHub repo with an anonymous name and a full README (AI tool use mentioned)
 - [ ] Unlisted YouTube video of 10 min or less, with both parts
