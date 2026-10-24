@@ -85,7 +85,7 @@ wvtrk/
 ├── api/index.py           # Vercel entry point for the FastAPI app
 ├── docker-compose.yml
 ├── vercel.json            # Vercel build, routing and function settings
-├── requirements.txt       # Python packages for Vercel (points at backend/)
+├── requirements.txt       # Python packages for Vercel (same versions as backend/)
 └── README.md
 ```
 
@@ -144,7 +144,7 @@ Vercel serves the built React page as static files and runs FastAPI as a Python 
 |---|---|
 | `api/index.py` | Entry point Vercel runs as a function. Adds `backend/` to the import path and exposes the existing FastAPI `app`; no backend code changes |
 | `vercel.json` | Builds the front end (`npm ci` and `npm run build` in `frontend/`, serves `frontend/dist`); rewrites `/api/*`, `/docs` and `/openapi.json` to the function (FastAPI still sees the original path); bundles `backend/app` and `backend/data/snapshot.json` with the function |
-| `requirements.txt` (root) | Python packages for the function; points at `backend/requirements.txt` |
+| `requirements.txt` (root) | Python packages for the function (FastAPI, requests). Vercel cannot read `-r` includes, so the versions repeat `backend/requirements.txt` and must be kept in sync |
 | `.python-version` | Python 3.12, the version tested in Docker |
 | `.vercelignore` | Keeps the virtual env, raw downloads, tests, scripts and build output out of uploads |
 
