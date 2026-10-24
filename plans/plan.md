@@ -160,9 +160,14 @@ Done when: the live link works in incognito.
 
 **Phase 7: Docs and submission**
 Goal: Hand over everything the brief asks for.
-- Write the README (files, how to run, live link, AI use note)
-- Record the video: client pitch and tech-lead review, up to 5 min each
-- Submit all links in the form
+- [x] Write the README (what it does, findings, how to run, tests, how it works, API, files and directories, deployment, AI use note)
+- [x] Re-check the brief: everything required is covered; open point on "decisions made in January" (see below)
+- [ ] Make the repo public (history already checked for the company name)
+- [ ] Open the repo, live app and video in incognito
+- [ ] Record the video: client pitch and tech-lead review, up to 5 min each (user)
+- [ ] Submit all links in the form (user)
+
+Open point: the brief says "purchase decisions to be made in January 2026". We read this as delivery in January (1–31 Jan, decisions 31 Dec–30 Jan). Read literally, decisions made 1–31 Jan cover delivery 2 Jan–1 Feb. The README states our reading.
 
 Done when: every item in the Done checklist (section 7) is ticked.
 
