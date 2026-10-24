@@ -52,7 +52,7 @@ All data endpoints take `start` and `end` (dates in January 2026, default the wh
 ## 4. Front-end screens
 
 One page ("Windsight"), built from the design the user supplied (kept locally, not in git):
-1. **Sidebar:** section menu and forecast settings (period presets or custom dates, hours-ahead slider 0–48h or day-before decision time, coverage warning). On screens under 900px the settings move above the content.
+1. **Sidebar:** forecast settings only, no section menu (period presets or custom dates, hours-ahead slider 0–48h or day-before decision time, coverage warning). On screens under 900px the settings move above the content.
 2. **Overview:** average error hero card, plus bias, error %, big-miss error and hours compared, with change badges against the previous settings. A summary bar sticks to the top once these scroll away.
 3. **Actual vs forecast chart:** half-hourly actuals, hourly forecasts, shaded gap, hover details (including when the forecast was published) and drag to zoom.
 4. **Error patterns:** error by hour of day and an error histogram with the share of hours over-forecast.
@@ -154,22 +154,9 @@ Steps:
 - [x] User imports the repo on vercel.com (Add New → Project → Import, Root Directory `./`, Application Preset "Other"; ignore Vercel's "Services" suggestion and its "configuration mismatch" warning) and deploys
 - [x] Fix: Vercel can't read `-r` includes in `requirements.txt`, so the root file lists the packages directly
 - [x] Check the live app logged out: page loads, 2,050 MW at 24h, 48h shows 589/744 with the night-hours warning, day-before 09:00 gives 2,127.5 MW, `/docs` and `/openapi.json` load, bad input returns 422, no console errors
-- [x] Record the live URL here (README in Phase 7)
+- [x] Record the live URL here
 
 Done when: the live link works in incognito.
-
-**Phase 7: Docs and submission**
-Goal: Hand over everything the brief asks for.
-- [x] Write the README (what it does, findings, how to run, tests, how it works, API, files and directories, deployment, AI use note)
-- [x] Re-check the brief: everything required is covered; "decisions made in January" decided below
-- [x] Make the repo public (done by the user; history checked for the company name)
-- [ ] Open the repo, live app and video in incognito
-- [ ] Record the video: client pitch and tech-lead review, up to 5 min each (user)
-- [ ] Submit all links in the form (user)
-
-Open point: the brief says "purchase decisions to be made in January 2026". We read this as delivery in January (1–31 Jan, decisions 31 Dec–30 Jan). Read literally, decisions made 1–31 Jan cover delivery 2 Jan–1 Feb. Decision (2026-10-25): keep delivery in January and state the reading as an assumption in the README.
-
-Done when: every item in the Done checklist (section 7) is ticked.
 
 ---
 
