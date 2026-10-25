@@ -65,6 +65,7 @@ export default function ChatWidget({ settings }: { settings: Settings }) {
 
   return (
     <>
+      {open && <div className={styles.backdrop} aria-hidden="true" onClick={() => setOpen(false)} />}
       {open && (
         <section
           className={styles.panel}

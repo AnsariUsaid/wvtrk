@@ -24,6 +24,23 @@
   transform: scale(1.05);
 }
 
+/* Dims and blurs the dashboard so the panel reads as a separate layer. Click to close. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: rgba(12, 42, 31, 0.28);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: backdrop-in 0.25s var(--ease);
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
 /* Floats over the right of the dashboard, just above the button. */
 .panel {
   position: fixed;
