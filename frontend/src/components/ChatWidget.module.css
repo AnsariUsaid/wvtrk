@@ -24,14 +24,15 @@
   transform: scale(1.05);
 }
 
-/* Floats over the left of the dashboard (the sidebar on desktop). */
+/* Floats over the right of the dashboard, just above the button. */
 .panel {
   position: fixed;
-  left: 24px;
-  bottom: 24px;
+  right: 24px;
+  bottom: 92px;
   z-index: 50;
   width: 380px;
-  height: min(560px, calc(100vh - 48px));
+  height: min(560px, calc(100vh - 116px));
+  transform-origin: bottom right;
   display: flex;
   flex-direction: column;
   border-radius: 20px;

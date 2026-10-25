@@ -10,7 +10,7 @@ const SUGGESTIONS = [
   'Is buying at 06:00 or 12:00 the day before more accurate?',
 ]
 
-/** Round button in the bottom-right corner that opens a chat panel over the left of the dashboard. */
+/** Round button in the bottom-right corner that opens a chat panel just above it. */
 export default function ChatWidget({ settings }: { settings: Settings }) {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
