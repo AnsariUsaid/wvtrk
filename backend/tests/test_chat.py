@@ -26,10 +26,12 @@ def test_get_accuracy_day_ahead():
     assert body["maeMw"] == pytest.approx(2127, abs=1)
 
 
-def test_daily_summary_has_one_row_per_day():
-    days = chat.run_tool("get_daily_summary", json.dumps({**JANUARY, "end": "2026-01-07"}))["days"]
-    assert [d["date"] for d in days] == [f"2026-01-0{i}" for i in range(1, 8)]
-    assert all(d["hoursCompared"] == 24 for d in days)
+def test_daily_summary_is_sorted_worst_first():
+    days = chat.run_tool("get_daily_summary", json.dumps(JANUARY))["days"]
+    assert len(days) == 31
+    assert days[0]["date"] == "2026-01-11"
+    maes = [d["maeMw"] for d in days]
+    assert maes == sorted(maes, reverse=True)
 
 
 def test_biggest_misses_are_sorted_and_capped():
@@ -40,8 +42,12 @@ def test_biggest_misses_are_sorted_and_capped():
     assert all(m["errorMw"] == m["forecastMw"] - m["actualMw"] for m in misses)
 
 
-def test_error_by_hour_has_24_hours():
-    assert len(chat.run_tool("get_error_by_hour", json.dumps(JANUARY))["hours"]) == 24
+def test_error_by_hour_has_24_hours_and_extremes():
+    body = chat.run_tool("get_error_by_hour", json.dumps(JANUARY))
+    assert len(body["hours"]) == 24
+    by_hour = {h["hour"]: h["maeMw"] for h in body["hours"]}
+    assert by_hour[body["worstHour"]] == max(by_hour.values())
+    assert by_hour[body["bestHour"]] == min(by_hour.values())
 
 
 @pytest.mark.parametrize(
@@ -84,6 +90,7 @@ def test_reply_runs_tools_then_answers():
     )
     text = chat.reply([{"role": "user", "content": "How accurate was it?"}], JANUARY, client=client)
     assert text == "The average error was 2,050 MW."
+    assert [c["tool_choice"] for c in client.calls] == ["required", "auto"]
     tool_msg = client.calls[1]["messages"][-1]
     assert tool_msg["role"] == "tool"
     assert json.loads(tool_msg["content"])["hoursCompared"] == 744

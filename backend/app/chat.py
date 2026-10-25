@@ -68,8 +68,11 @@ def _tool(name: str, description: str, extra: dict | None = None) -> dict:
 
 TOOLS = [
     _tool("get_accuracy", "Overall forecast accuracy for a period: MAE, RMSE, bias, error % and hours compared."),
-    _tool("get_error_by_hour", "Average error and average miss size for each hour of the day (UK time)."),
-    _tool("get_daily_summary", "Accuracy for each delivery day in the period, to find the best and worst days."),
+    _tool(
+        "get_error_by_hour",
+        "Average error and average miss size for each hour of the day (UK time), with the worst and best hours.",
+    ),
+    _tool("get_daily_summary", "Accuracy for each delivery day in the period, sorted worst day (highest MAE) first."),
     _tool(
         "get_biggest_misses",
         "The hours with the largest forecast errors in the period, biggest first.",
@@ -116,7 +119,13 @@ def get_error_by_hour(snapshot: Snapshot, args: dict) -> dict:
         {"hour": h.hour, "hoursCompared": h.slots, "meanErrorMw": _r(h.mean_error), "maeMw": _r(h.mae)}
         for h in error_by_hour(result)
     ]
-    return {"selection": selection, "hours": hours}
+    ranked = sorted(hours, key=lambda h: h["maeMw"])
+    return {
+        "selection": selection,
+        "worstHour": ranked[-1]["hour"] if ranked else None,
+        "bestHour": ranked[0]["hour"] if ranked else None,
+        "hours": hours,
+    }
 
 
 def get_daily_summary(snapshot: Snapshot, args: dict) -> dict:
@@ -134,7 +143,9 @@ def get_daily_summary(snapshot: Snapshot, args: dict) -> dict:
             "biasMw": _r(sum(s.error for s in slots) / n),
             "meanActualMw": _r(sum(s.actual for s in slots) / n),
         })
-    return {"selection": selection, "days": days}
+    # Small models read lists top-down, so rank here rather than leave it to the model.
+    days.sort(key=lambda d: d["maeMw"], reverse=True)
+    return {"selection": selection, "order": "worst day (highest MAE) first", "days": days}
 
 
 def get_biggest_misses(snapshot: Snapshot, args: dict) -> dict:
@@ -242,8 +253,9 @@ def reply(messages: list[dict[str, str]], settings: dict[str, Any], client=None)
     model = os.environ.get("OPENAI_MODEL", DEFAULT_MODEL)
     convo: list[dict] = [{"role": "system", "content": system_prompt(settings)}, *messages[-MAX_HISTORY:]]
 
-    for _ in range(MAX_TOOL_ROUNDS):
-        msg = _ask(client, model, convo, "auto")
+    for round_no in range(MAX_TOOL_ROUNDS):
+        # The first round must call a tool, so every answer starts from real figures.
+        msg = _ask(client, model, convo, "required" if round_no == 0 else "auto")
         if not msg.tool_calls:
             return _text(msg)
         convo.append({
