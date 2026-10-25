@@ -163,7 +163,7 @@ Steps:
 
 Done when: the live link works in incognito.
 
-**Phase 7: Chat assistant** (branch `feat/chat-assistant`)
+**Phase 7: Chat assistant** ✅ Done 2026-10-25, live at https://wvtrk.vercel.app
 Goal: Let the team ask questions about the figures in plain English.
 
 The model never sees the raw data. It calls four tools that reuse `forecast.py` and `metrics.py`: `get_accuracy`, `get_error_by_hour` (with the worst and best hour), `get_daily_summary` (sorted worst day first) and `get_biggest_misses`. Each request also sends the dashboard's current settings, so "this period" means what is on screen.
@@ -172,8 +172,8 @@ The model never sees the raw data. It calls four tools that reuse `forecast.py` 
 - [x] Tests with a fake OpenAI client (51 back-end tests pass); 8 real questions checked against the tools
 - [x] Chat UI agreed with the user: round green button bottom right; docked column from 1100px, blurred pop-up below that
 - [x] `OPENAI_API_KEY` and `OPENAI_MODEL` passed through Docker Compose and the local API (`.env`); Vercel function time limit raised to 30 s
-- [ ] Add `OPENAI_API_KEY` in Vercel's project settings (user)
-- [ ] Push the branch and merge into `main` (user to approve)
+- [x] Add `OPENAI_API_KEY` in Vercel's project settings (user)
+- [x] Push the branch and merge into `main`; checked on the live app (worst day 11 Jan, 12:00 beats 06:00, no console errors)
 
 Done when: the chat answers correctly on the live app.
 
