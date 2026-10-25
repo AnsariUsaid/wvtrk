@@ -34,6 +34,12 @@ def test_daily_summary_is_sorted_worst_first():
     assert maes == sorted(maes, reverse=True)
 
 
+def test_daily_summary_counts_days_too_high_and_too_low():
+    body = chat.run_tool("get_daily_summary", json.dumps(JANUARY))
+    assert (body["daysTooHigh"], body["daysTooLow"]) == (30, 1)
+    assert [d["date"] for d in body["days"] if d["forecastWas"] == "too low"] == ["2026-01-19"]
+
+
 def test_biggest_misses_are_sorted_and_capped():
     misses = chat.run_tool("get_biggest_misses", json.dumps({**JANUARY, "limit": 50}))["misses"]
     assert len(misses) == chat.MAX_MISSES
@@ -48,6 +54,7 @@ def test_error_by_hour_has_24_hours_and_extremes():
     by_hour = {h["hour"]: h["maeMw"] for h in body["hours"]}
     assert by_hour[body["worstHour"]] == max(by_hour.values())
     assert by_hour[body["bestHour"]] == min(by_hour.values())
+    assert (body["worstHour"], body["mostOverForecastHour"]) == (5, 2)
 
 
 @pytest.mark.parametrize(

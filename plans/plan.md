@@ -166,10 +166,11 @@ Done when: the live link works in incognito.
 **Phase 7: Chat assistant** ✅ Done 2026-10-25, live at https://wvtrk.vercel.app
 Goal: Let the team ask questions about the figures in plain English.
 
-The model never sees the raw data. It calls four tools that reuse `forecast.py` and `metrics.py`: `get_accuracy`, `get_error_by_hour` (with the worst and best hour), `get_daily_summary` (sorted worst day first) and `get_biggest_misses`. Each request also sends the dashboard's current settings, so "this period" means what is on screen.
+The model never sees the raw data. It calls four tools that reuse `forecast.py` and `metrics.py`: `get_accuracy`, `get_error_by_hour` (time of day, with the worst, best and most over-forecast hour), `get_daily_summary` (sorted worst day first, with counts of days too high and too low) and `get_biggest_misses`. Each request also sends the dashboard's current settings, so "this period" means what is on screen.
 - [x] `POST /api/chat` with OpenAI tool calling: at most 4 tool rounds, replies capped at 500 tokens, last 12 messages sent, about 20 questions per 10 minutes per visitor (per server instance)
 - [x] Fix wrong answers found in testing: the model took the first day in the list as the worst, and once answered without calling a tool. Tools now return rankings, and the first round must call a tool
-- [x] Tests with a fake OpenAI client (51 back-end tests pass); 8 real questions checked against the tools
+- [x] Tests with a fake OpenAI client (52 back-end tests pass); 8 real questions checked against the tools
+- [x] Second round of live checks (11 questions, 9 right): "which hour of the day" was answered with a single dated hour, and "days too low" was miscounted as 17 (it is 1). Tool descriptions now separate time of day from dated hours, the daily summary returns the day counts, and the prompt asks for the bias direction; all re-checked with the real model
 - [x] Chat UI agreed with the user: round green button bottom right; docked column from 1100px, blurred pop-up below that
 - [x] `OPENAI_API_KEY` and `OPENAI_MODEL` passed through Docker Compose and the local API (`.env`); Vercel function time limit raised to 30 s
 - [x] Add `OPENAI_API_KEY` in Vercel's project settings (user)

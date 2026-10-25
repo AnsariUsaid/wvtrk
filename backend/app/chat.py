@@ -70,12 +70,16 @@ TOOLS = [
     _tool("get_accuracy", "Overall forecast accuracy for a period: MAE, RMSE, bias, error % and hours compared."),
     _tool(
         "get_error_by_hour",
-        "Average error and average miss size for each hour of the day (UK time), with the worst and best hours.",
+        "Time-of-day pattern: each hour of the day (00-23, UK time) averaged over every day in the period. "
+        "Use for 'which hour of the day' or 'overnight vs afternoon' questions.",
     ),
-    _tool("get_daily_summary", "Accuracy for each delivery day in the period, sorted worst day (highest MAE) first."),
+    _tool(
+        "get_daily_summary",
+        "Accuracy for each delivery day, worst day (highest MAE) first, with counts of days the forecast was too high or too low.",
+    ),
     _tool(
         "get_biggest_misses",
-        "The hours with the largest forecast errors in the period, biggest first.",
+        "Specific dated hours (date and time) with the largest single forecast errors, biggest first.",
         {"limit": {"type": "integer", "description": f"How many hours to return, 1-{MAX_MISSES}"}},
     ),
 ]
@@ -122,8 +126,9 @@ def get_error_by_hour(snapshot: Snapshot, args: dict) -> dict:
     ranked = sorted(hours, key=lambda h: h["maeMw"])
     return {
         "selection": selection,
-        "worstHour": ranked[-1]["hour"] if ranked else None,
+        "worstHour": ranked[-1]["hour"] if ranked else None,  # by average miss size
         "bestHour": ranked[0]["hour"] if ranked else None,
+        "mostOverForecastHour": max(hours, key=lambda h: h["meanErrorMw"])["hour"] if hours else None,
         "hours": hours,
     }
 
@@ -143,9 +148,16 @@ def get_daily_summary(snapshot: Snapshot, args: dict) -> dict:
             "biasMw": _r(sum(s.error for s in slots) / n),
             "meanActualMw": _r(sum(s.actual for s in slots) / n),
         })
-    # Small models read lists top-down, so rank here rather than leave it to the model.
+        days[-1]["forecastWas"] = "too high" if days[-1]["biasMw"] > 0 else "too low"
+    # Small models read lists top-down and miscount, so rank and count here rather than leave it to the model.
     days.sort(key=lambda d: d["maeMw"], reverse=True)
-    return {"selection": selection, "order": "worst day (highest MAE) first", "days": days}
+    return {
+        "selection": selection,
+        "order": "worst day (highest MAE) first",
+        "daysTooHigh": sum(d["forecastWas"] == "too high" for d in days),
+        "daysTooLow": sum(d["forecastWas"] == "too low" for d in days),
+        "days": days,
+    }
 
 
 def get_biggest_misses(snapshot: Snapshot, args: dict) -> dict:
@@ -207,6 +219,7 @@ Rules:
 - Only data for 1-31 January 2026 exists. Say so if asked about other dates.
 - Answer in plain text, no markdown. Keep it short: 2-5 sentences, or a few short lines.
 - Round to whole MW, or GW with one decimal for big values.
+- When you give a bias, say whether the forecast was too high or too low.
 - Politely decline questions that are not about this data or the dashboard."""
 
 
