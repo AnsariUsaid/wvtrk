@@ -62,6 +62,27 @@
   animation: chat-in 0.25s var(--ease);
 }
 
+/* Wide screens: a full-height column on the right; the dashboard narrows to make room. */
+.docked {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--chat-width);
+  height: auto;
+  border-radius: 0;
+  border: 0;
+  border-left: 1px solid var(--line-2);
+  box-shadow: -16px 0 40px -28px rgba(16, 35, 26, 0.35);
+  animation: chat-slide 0.3s var(--ease);
+}
+
+@keyframes chat-slide {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+}
+
 @keyframes chat-in {
   from {
     opacity: 0;

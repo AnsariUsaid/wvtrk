@@ -10,9 +10,15 @@ const SUGGESTIONS = [
   'Is buying at 06:00 or 12:00 the day before more accurate?',
 ]
 
-/** Round button in the bottom-right corner that opens a chat panel just above it. */
-export default function ChatWidget({ settings }: { settings: Settings }) {
-  const [open, setOpen] = useState(false)
+interface Props {
+  settings: Settings
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  docked: boolean // wide screens: a full-height column beside the dashboard instead of a pop-up
+}
+
+/** Round button in the bottom-right corner that opens the chat, docked on the right or as a pop-up above it. */
+export default function ChatWidget({ settings, open, onOpenChange: setOpen, docked }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
@@ -26,7 +32,10 @@ export default function ChatWidget({ settings }: { settings: Settings }) {
   }, [open])
 
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' })
+    listRef.current?.scrollTo({
+      top: listRef.current.scrollHeight,
+      behavior: 'smooth',
+    })
   }, [messages, sending, error])
 
   useEffect(() => () => pending.current?.abort(), [])
@@ -65,10 +74,10 @@ export default function ChatWidget({ settings }: { settings: Settings }) {
 
   return (
     <>
-      {open && <div className={styles.backdrop} aria-hidden="true" onClick={() => setOpen(false)} />}
+      {open && !docked && <div className={styles.backdrop} aria-hidden="true" onClick={() => setOpen(false)} />}
       {open && (
         <section
-          className={styles.panel}
+          className={`${styles.panel} ${docked ? styles.docked : ''}`}
           role="dialog"
           aria-label="Ask Windsight"
           onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}
@@ -126,33 +135,48 @@ export default function ChatWidget({ settings }: { settings: Settings }) {
             />
             <button type="submit" className={styles.send} disabled={sending || !draft.trim()} aria-label="Send">
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-                <path d="M4 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M4 12h14M12 5l7 7-7 7"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
           </form>
         </section>
       )}
 
-      <button
-        type="button"
-        className={styles.fab}
-        aria-label={open ? 'Close chat' : 'Open chat'}
-        aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
-      >
-        {open ? (
-          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-          </svg>
-        ) : (
-          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-            <path
-              d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 3.5V17A2.5 2.5 0 0 1 4 14.5z"
-              fill="currentColor"
-            />
-          </svg>
-        )}
-      </button>
+      {!(open && docked) && (
+        <button
+          type="button"
+          className={styles.fab}
+          aria-label={open ? 'Close chat' : 'Open chat'}
+          aria-expanded={open}
+          onClick={() => setOpen(!open)}
+        >
+          {open ? (
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <path
+                d="M6 6l12 12M18 6L6 18"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+              />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+              <path
+                d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 3.5V17A2.5 2.5 0 0 1 4 14.5z"
+                fill="currentColor"
+              />
+            </svg>
+          )}
+        </button>
+      )}
     </>
   )
 }

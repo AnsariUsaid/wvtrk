@@ -2,6 +2,12 @@
   display: flex;
   min-height: 100vh;
   align-items: stretch;
+  transition: padding-right 0.3s var(--ease);
+}
+
+/* Room for the docked chat column. */
+.chatDocked {
+  padding-right: var(--chat-width);
 }
 
 .content {

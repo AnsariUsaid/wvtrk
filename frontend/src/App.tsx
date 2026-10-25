@@ -34,6 +34,8 @@ export default function App() {
   const pulseTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   const narrow = useMediaQuery('(max-width: 899px)')
+  const chatDocks = useMediaQuery('(min-width: 1100px)')
+  const [chatOpen, setChatOpen] = useState(false)
   const scrolled = useScrolledPast('overview', 170)
   useRevealOnScroll('[data-reveal]', ui.hidden)
 
@@ -123,7 +125,7 @@ export default function App() {
   )
 
   return (
-    <div className={styles.layout}>
+    <div className={`${styles.layout} ${chatOpen && chatDocks ? styles.chatDocked : ''}`}>
       {!narrow && (
         <Sidebar>
           {settingsPanel}
@@ -193,7 +195,7 @@ export default function App() {
         </main>
       </div>
 
-      <ChatWidget settings={settings} />
+      <ChatWidget settings={settings} open={chatOpen} onOpenChange={setChatOpen} docked={chatDocks} />
     </div>
   )
 }
