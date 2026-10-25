@@ -66,6 +66,15 @@ export interface HealthResponse {
   periodEnd: string
 }
 
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+export interface ChatResponse {
+  reply: string
+}
+
 // ---------- Dashboard settings (what the user has picked) ----------
 
 export type Preset = 'month' | 'custom' | 'w1' | 'w2' | 'w3' | 'w4'

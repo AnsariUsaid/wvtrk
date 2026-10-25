@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { getHealth, queryFor } from './api'
 import styles from './App.module.css'
+import ChatWidget from './components/ChatWidget'
 import ErrorByHourChart from './components/ErrorByHourChart'
 import ErrorHistogram from './components/ErrorHistogram'
 import ForecastChart from './components/ForecastChart'
@@ -191,6 +192,8 @@ export default function App() {
           </section>
         </main>
       </div>
+
+      <ChatWidget settings={settings} />
     </div>
   )
 }
