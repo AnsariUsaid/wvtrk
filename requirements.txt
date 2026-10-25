@@ -2,3 +2,4 @@
 # repeat backend/requirements.txt (minus uvicorn, which Vercel doesn't need). Keep versions in sync.
 fastapi==0.162.0
 requests==2.34.2
+openai==3.37.0

@@ -4,17 +4,19 @@ Run from backend/:
     uvicorn app.main:app --reload
 """
 
+import logging
 import os
 from contextlib import asynccontextmanager
 from datetime import date, datetime, time, timedelta
 from enum import Enum
-from typing import Annotated, NamedTuple
+from typing import Annotated, Literal, NamedTuple
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
+from app import chat
 from app.data import PERIOD_END, PERIOD_START, Snapshot, load_snapshot
 from app.forecast import (
     DEFAULT_DAY_AHEAD_CUTOFF,
@@ -32,6 +34,8 @@ from app.metrics import error_by_hour, summarise
 FIRST_DAY = PERIOD_START.date()
 LAST_DAY = (PERIOD_END - timedelta(days=1)).date()
 
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -47,7 +51,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.environ.get("CORS_ORIGINS", "http://localhost:5173").split(","),
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
 )
 
 
@@ -118,6 +122,20 @@ class ErrorProfileResponse(ApiModel):
     selection: Selection
     coverage: Coverage
     hours: list[HourRow]
+
+
+class ChatMessage(ApiModel):
+    role: Literal["user", "assistant"]
+    content: str = Field(min_length=1, max_length=2000)
+
+
+class ChatRequest(ApiModel):
+    messages: list[ChatMessage] = Field(min_length=1, max_length=40)
+    settings: Selection  # what the dashboard is showing, so "this period" means something
+
+
+class ChatResponse(ApiModel):
+    reply: str
 
 
 class HealthResponse(ApiModel):
@@ -227,3 +245,19 @@ def error_profile(matched: Annotated[Matched, Depends(get_match)]):
         for h in error_by_hour(result)
     ]
     return ErrorProfileResponse(selection=selection, coverage=coverage(result), hours=hours)
+
+
+@app.post("/api/chat", response_model=ChatResponse)
+def chat_reply(body: ChatRequest, request: Request):
+    forwarded = request.headers.get("x-forwarded-for", "")
+    client_id = forwarded.split(",")[0].strip() or (request.client.host if request.client else "unknown")
+    if not chat.allow(client_id):
+        raise HTTPException(status_code=429, detail="Too many questions in a short time. Please wait a few minutes.")
+    messages = [m.model_dump() for m in body.messages]
+    try:
+        return ChatResponse(reply=chat.reply(messages, body.settings.model_dump(mode="json", exclude_none=True)))
+    except chat.ChatUnavailable as exc:
+        raise HTTPException(status_code=503, detail="The assistant isn't set up on this server.") from exc
+    except Exception as exc:  # OpenAI outage, timeout or bad key
+        logger.exception("chat reply failed")
+        raise HTTPException(status_code=502, detail="The assistant couldn't answer right now. Please try again.") from exc
