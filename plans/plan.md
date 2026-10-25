@@ -19,6 +19,7 @@ Based on [requirements.md](requirements.md).
 | Storage | Small JSON snapshot (fetched once by a script, shipped with the app, loaded at startup) | The data is historical, so no database is needed, and serverless cold starts don't have to call Elexon again |
 | Local run | Docker + docker-compose | Required by the brief |
 | Deploy | Vercel: React as a static site, FastAPI as a Python function | Free and simple. Heroku with a Docker image is the backup option |
+| Chat assistant | OpenAI `gpt-4o-mini` (set by `OPENAI_MODEL`) with tool calling | Cheap and quick. Tools reuse the dashboard's own code, so answers match the screen; no RAG or vector store needed |
 
 ---
 
@@ -46,6 +47,7 @@ All data endpoints take `start` and `end` (dates in January 2026, default the wh
 | `GET /api/generation` | Hourly `slots` (`startTime`, `actual`, `forecast`, `publishTime`, `error`; forecast is null when there isn't one), plus half-hourly `actuals` |
 | `GET /api/metrics` | MAE, RMSE, bias, normalised MAE and mean actual |
 | `GET /api/error-profile` | Mean error and MAE for each hour of the day |
+| `POST /api/chat` | Body: `messages` (user/assistant turns) and the dashboard's current `settings`. Returns the assistant's `reply`. 503 without `OPENAI_API_KEY`, 429 when rate limited, 502 if OpenAI fails |
 
 ---
 
@@ -58,6 +60,7 @@ One page ("Windsight"), built from the design the user supplied (kept locally, n
 4. **Error patterns:** error by hour of day and an error histogram with the share of hours over-forecast.
 5. **Insights, glossary and how it works:** plain-English takeaways generated from the current figures.
 6. **States:** dimmed cards while loading and an error banner with Retry that keeps the last figures on screen.
+7. **Chat assistant:** a round green button in the bottom-right corner. From 1100px wide the chat opens as a full-height column on the right and the dashboard narrows to make room; on smaller screens it opens as a pop-up above the button, with the dashboard dimmed and blurred behind it. Starts with three suggested questions.
 
 ---
 
@@ -72,10 +75,11 @@ wvtrk/
 │   │   ├── elexon.py      # fetch and clean data from Elexon
 │   │   ├── data.py        # snapshot format + loader
 │   │   ├── forecast.py    # pick latest forecast per slot (horizon or day-ahead cutoff)
-│   │   └── metrics.py     # error calculations
+│   │   ├── metrics.py     # error calculations
+│   │   └── chat.py        # chat assistant: OpenAI tool calling over the same data
 │   ├── data/snapshot.json # January 2026 data, built by scripts/build_snapshot.py
 │   ├── scripts/           # build_snapshot.py, explore_data.py (Phase 1)
-│   ├── tests/             # pytest: matching, metrics, API
+│   ├── tests/             # pytest: matching, metrics, API, chat tools
 │   ├── requirements.txt   # requirements-dev.txt adds pytest
 │   └── Dockerfile         # targets: test, runtime
 ├── frontend/
@@ -84,6 +88,7 @@ wvtrk/
 │   └── Dockerfile         # build, then nginx (nginx.conf.template)
 ├── api/index.py           # Vercel entry point for the FastAPI app
 ├── docker-compose.yml
+├── .env.example           # OPENAI_API_KEY and OPENAI_MODEL (copy to .env, which git ignores)
 ├── vercel.json            # Vercel build, routing and function settings
 ├── requirements.txt       # Python packages for Vercel (same versions as backend/)
 └── README.md
@@ -158,6 +163,20 @@ Steps:
 
 Done when: the live link works in incognito.
 
+**Phase 7: Chat assistant** (branch `feat/chat-assistant`)
+Goal: Let the team ask questions about the figures in plain English.
+
+The model never sees the raw data. It calls four tools that reuse `forecast.py` and `metrics.py`: `get_accuracy`, `get_error_by_hour` (with the worst and best hour), `get_daily_summary` (sorted worst day first) and `get_biggest_misses`. Each request also sends the dashboard's current settings, so "this period" means what is on screen.
+- [x] `POST /api/chat` with OpenAI tool calling: at most 4 tool rounds, replies capped at 500 tokens, last 12 messages sent, about 20 questions per 10 minutes per visitor (per server instance)
+- [x] Fix wrong answers found in testing: the model took the first day in the list as the worst, and once answered without calling a tool. Tools now return rankings, and the first round must call a tool
+- [x] Tests with a fake OpenAI client (51 back-end tests pass); 8 real questions checked against the tools
+- [x] Chat UI agreed with the user: round green button bottom right; docked column from 1100px, blurred pop-up below that
+- [x] `OPENAI_API_KEY` and `OPENAI_MODEL` passed through Docker Compose and the local API (`.env`); Vercel function time limit raised to 30 s
+- [ ] Add `OPENAI_API_KEY` in Vercel's project settings (user)
+- [ ] Push the branch and merge into `main` (user to approve)
+
+Done when: the chat answers correctly on the live app.
+
 ---
 
 ## 7. Done checklist
@@ -179,3 +198,5 @@ Done when: the live link works in incognito.
 - **WINDFOR is hourly but actuals are half-hourly:** resolved by comparing on-the-hour slots only (see data-notes.md, D1).
 - **Missing slots in the actuals or forecasts:** skip unmatched slots and show how many were used.
 - **Vercel's Python function limits:** keep the data small, or move to Heroku with Docker.
+- **Chat cost and abuse:** the app is public with no login. Replies are capped, there is a per-visitor rate limit, and a monthly spending limit should be set in the OpenAI dashboard.
+- **Chat giving wrong numbers:** every figure must come from a tool, and tools return ready-made rankings rather than leaving the model to scan long lists.

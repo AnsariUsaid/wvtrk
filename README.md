@@ -4,10 +4,11 @@ A web app for a UK energy utility's day-ahead trading team. For January 2026 it 
 
 1. **The latest wind forecast that was available when the buying decision had to be made**, next to what the wind farms actually produced.
 2. **How accurate that forecast was**, in numbers the team can plan around (average error, bias, error %, big-miss error), and how the error changes with the hour of day and with how far ahead the decision is made.
+3. **A chat assistant** that answers questions about those figures in plain English, such as "which day had the worst forecast?" or "is buying at 06:00 or 12:00 the day before more accurate?".
 
 **Live app:** https://wvtrk.vercel.app  ·  **API docs:** https://wvtrk.vercel.app/docs
 
-Built with React + TypeScript (front end), Python + FastAPI (back end), Docker, and deployed on Vercel. Data comes only from Elexon's national wind datasets, as the brief requires.
+Built with React + TypeScript (front end), Python + FastAPI (back end), Docker, and deployed on Vercel. Data comes only from Elexon's national wind datasets, as the brief requires. The chat assistant uses OpenAI's `gpt-4o-mini` with tool calling.
 
 ---
 
@@ -23,6 +24,16 @@ Full analysis: [plans/data-notes.md](plans/data-notes.md).
 ---
 
 ## How to start the application
+
+### Chat assistant key (optional)
+
+The dashboard works without it; only the chat needs an OpenAI API key. From the repo root:
+
+```bash
+cp .env.example .env
+```
+
+Then put your key after `OPENAI_API_KEY=` in `.env` (git ignores this file). Without a key the chat replies that it isn't set up.
 
 ### Option 1: Docker (recommended)
 
@@ -45,7 +56,7 @@ Needs Python 3.12+ and Node 22+. From the repo root:
 # Back end (http://localhost:8000)
 python3 -m venv .venv
 .venv/bin/pip install -r backend/requirements-dev.txt
-.venv/bin/uvicorn app.main:app --app-dir backend --reload
+.venv/bin/uvicorn app.main:app --app-dir backend --reload --env-file .env
 ```
 
 ```bash
@@ -60,7 +71,7 @@ The Vite dev server forwards `/api` to the back end on port 8000.
 ### Tests
 
 ```bash
-(cd backend && ../.venv/bin/python -m pytest)   # 35 tests: matching, metrics, API
+(cd backend && ../.venv/bin/python -m pytest)   # 51 tests: matching, metrics, API, chat tools
 (cd frontend && npm test)                       # 10 tests: histogram, insights, missing hours, formatting
 ```
 
@@ -107,6 +118,19 @@ browser ── /            ──► React app (static files) │
 
 It also shows the error for each hour of the day, the spread of errors (in 0.5 GW steps), and how many hours had a forecast. MAPE is not used because it breaks down when wind output is close to zero.
 
+**Chat assistant.** The model never sees the raw data. It answers by calling four tools on the back end, which reuse the same matching and metrics code as the dashboard, so its numbers match the screen:
+
+| Tool | Returns |
+|---|---|
+| `get_accuracy` | MAE, RMSE, bias, error % and hours compared for a period and timing |
+| `get_error_by_hour` | Average error for each hour of the day, with the worst and best hour |
+| `get_daily_summary` | Accuracy for each day, worst day first |
+| `get_biggest_misses` | The hours with the largest errors |
+
+Each question also sends the dashboard's current settings, so "this period" means what is on screen. The first step must call a tool, so every answer starts from real figures. To limit cost on a public app, replies are capped at 500 tokens, only the last 12 messages are sent, and each visitor can ask about 20 questions per 10 minutes.
+
+On screens 1100px and wider the chat opens as a column on the right and the dashboard narrows beside it; on smaller screens it opens as a pop-up over a blurred dashboard.
+
 **Assumptions** (details in [plans/data-notes.md](plans/data-notes.md)):
 
 - Forecasts are hourly, so only on-the-hour actuals are compared (744 hours in January). Averaging the half-hourly actuals made less than 1% difference.
@@ -125,6 +149,7 @@ All data endpoints take `start` and `end` (dates in January 2026), `mode` (`hori
 | `GET /api/generation` | Each hour's actual, forecast, publish time and error, plus half-hourly actuals |
 | `GET /api/metrics` | MAE, RMSE, bias, NMAE, mean actual, and hours used out of the total |
 | `GET /api/error-profile` | Mean error and MAE for each hour of the day |
+| `POST /api/chat` | The assistant's reply, given the conversation so far and the dashboard's current settings |
 
 ---
 
@@ -144,25 +169,27 @@ wvtrk/
 │   │   ├── elexon.py           # Fetch and clean FUELHH (WIND) and WINDFOR data
 │   │   ├── data.py             # Snapshot format and in-memory loader
 │   │   ├── forecast.py         # Pick the latest forecast before a cutoff (both modes)
-│   │   └── metrics.py          # MAE, RMSE, bias, NMAE, error by hour
+│   │   ├── metrics.py          # MAE, RMSE, bias, NMAE, error by hour
+│   │   └── chat.py             # Chat assistant: OpenAI tool calling over the same data
 │   ├── data/snapshot.json      # January 2026 actuals and forecasts (about 0.5 MB)
 │   ├── scripts/
 │   │   ├── build_snapshot.py   # Downloads from Elexon and writes the snapshot
 │   │   └── explore_data.py     # Phase 1 data quality and coverage report
-│   ├── tests/                  # pytest: matching, metrics, API
+│   ├── tests/                  # pytest: matching, metrics, API, chat tools
 │   ├── requirements.txt        # Runtime packages (requirements-dev.txt adds test tools)
 │   └── Dockerfile              # Targets: test, runtime
 ├── frontend/                   # React + TypeScript (Vite)
 │   ├── src/
 │   │   ├── App.tsx             # Page layout and state
 │   │   ├── api.ts, types.ts    # API client and response types
-│   │   ├── components/         # Sidebar, settings, cards, charts (custom SVG), insights
+│   │   ├── components/         # Sidebar, settings, cards, charts (custom SVG), insights, chat
 │   │   ├── hooks/              # Data loading, animations, layout helpers
 │   │   ├── lib/                # Formatting and analysis helpers, with unit tests
 │   │   └── styles/global.css   # Colours, fonts, base styles
 │   ├── Dockerfile              # Builds the app, serves it with nginx
 │   └── nginx.conf.template     # Serves the app and forwards /api to the back end
 ├── docker-compose.yml          # api (:8000) + web (:8080)
+├── .env.example                # OpenAI key and model for the chat (copy to .env)
 ├── api/index.py                # Vercel entry point for the FastAPI app
 ├── vercel.json                 # Vercel build, routing and function settings
 ├── requirements.txt            # Python packages for Vercel (same versions as backend/)
@@ -174,6 +201,8 @@ wvtrk/
 ## Deployment
 
 The app is deployed on Vercel from the `main` branch: the React app is served as static files and FastAPI runs as a Python function, on one address. `vercel.json` builds the front end from `frontend/`, sends `/api/*`, `/docs` and `/openapi.json` to `api/index.py`, and bundles the data snapshot with the function. Every push to `main` redeploys.
+
+For the chat, set `OPENAI_API_KEY` (and optionally `OPENAI_MODEL`) under Project Settings → Environment Variables on Vercel. The function's time limit is 30 seconds, since one question can take a few model calls.
 
 ---
 
